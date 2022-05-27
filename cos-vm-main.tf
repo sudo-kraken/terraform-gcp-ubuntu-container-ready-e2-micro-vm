@@ -8,9 +8,11 @@ locals {
 #cloud-config
 bootcmd:
   - fsck.ext4 -tvy /dev/sdb || mkfs.ext4 /dev/sdb
-  - mkdir -p /mnt/docker
-  - mount -o defaults -t ext4 /dev/sdb /mnt/docker
+  - mkdir -p /mnt/diskd/docker
+  - mount -o defaults -t ext4 /dev/sdb /mnt/disks/docker
+  - mkdir -p /mnt/docker/projects/app
 EOT
+
 }
 
 # Create VM
@@ -22,16 +24,35 @@ resource "google_compute_instance" "gcp-cos-vm" {
   allow_stopping_for_update = "true"
   tags         = ["ssh","http-server","https-server"]
 
-  metadata = {
-    user-data = module.container-server.cloud_config
-  }
-
+ 
   boot_disk {
     initialize_params {
       type  = "pd-standard"   
       image = var.cos_97
     }
   }
+
+provisioner "file" {
+   # source file name on the local machine where you execute terraform plan and apply
+   source      = "../compose_files/docker-compose.yaml"
+   # destination is the file location on the newly created instance
+   destination = "/mnt/disks/docker/projects/app/docker-compose.yaml"
+   connection {
+     host        = google_compute_instance.gcp-cos-vm.network_interface.0.access_config.0.nat_ip
+     type        = "ssh"
+     # username of the instance would vary for each account refer the OS Login in GCP documentation
+     user        = var.user
+     timeout     = "500s"
+     private_key = file(var.privatekeypath)
+   }
+   # Commands to be executed as the instance gets ready.
+   # installing nginx
+   #inline = [
+   #  "chmod a+x /tmp/startupscript.sh",
+   #  "sed -i -e 's/\r$//' /tmp/startupscript.sh",
+   #  "sudo /tmp/startupscript.sh"
+   #]
+ }
 
   # Define Network
   network_interface {
@@ -48,6 +69,11 @@ resource "google_compute_instance" "gcp-cos-vm" {
   lifecycle {
     ignore_changes = [attached_disk]
   }
+
+  metadata = {
+    ssh-keys = "${var.user}:${file(var.publickeypath)}"
+  }
+
 }
 
 /* Disk --------------------------------------------------------------------- */
@@ -55,17 +81,12 @@ resource "google_compute_instance" "gcp-cos-vm" {
 resource "google_compute_disk" "default" {
   name    = "disk-app-server"
   type    = "pd-standard"
-  zone    = "${var.gcp_region}-b"
+  zone    = "${var.gcp_zone}"
   size    = 20
 }
 
 resource "google_compute_attached_disk" "default" {
   disk     = google_compute_disk.default.id
   instance = google_compute_instance.gcp-cos-vm.id
-}
 
-provisioner "file" {
-  source      = "../compose_files/docker-compose.yaml"
-  destination = "/mnt/docker/projects/app/docker-compose.yaml"
 }
-

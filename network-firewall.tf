@@ -5,7 +5,7 @@
 # Allow http
 resource "google_compute_firewall" "allow-http" {
   name    = "IDENTIFIER-fw-allow-http"
-  network = default
+  network = google_compute_network.vpc.name
   allow {
     protocol = "tcp"
     ports    = ["80"]
@@ -18,7 +18,7 @@ resource "google_compute_firewall" "allow-http" {
 # allow https
 resource "google_compute_firewall" "allow-https" {
   name    = "IDENTIFIER-fw-allow-http"
-  network = default
+  network = google_compute_network.vpc.name
   allow {
     protocol = "tcp"
     ports    = ["443"]
@@ -31,7 +31,7 @@ resource "google_compute_firewall" "allow-https" {
 # allow ssh
 resource "google_compute_firewall" "allow-ssh" {
   name    = "IDENTIFIER-fw-allow-http-fw-allow-ssh"
-  network = default
+  network = google_compute_network.vpc.name
   allow {
     protocol = "tcp"
     ports    = ["22"]

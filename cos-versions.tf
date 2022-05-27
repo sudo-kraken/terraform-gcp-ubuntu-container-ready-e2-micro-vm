@@ -18,3 +18,4 @@ variable "cos_97" {
   type        = string
   description = "COS 97"
   default     = "cos-cloud/cos-97-lts"
+}

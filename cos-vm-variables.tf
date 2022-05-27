@@ -2,24 +2,25 @@
 ## GCP COS VM - Variables   ##
 ##~~~~~~~~~~~~~~~~~~~~~~~~~~##
 
-variable "linux_instance_type" {
+variable "vm_instance_type" {
   type        = string
   description = "VM instance type"
   default     = "e2-micro"
 }
 
-variable "email_address" {
-  type        = string
-  description = "Email Address"
+variable "privatekeypath" {
+    type = string
+    default = "~/.ssh/sshkey"
+}
+variable "publickeypath" {
+    type = string
+    default = "~/.ssh/sshkey.pub"
 }
 
-variable "admin_password" {
-  type        = string
-  description = "Admin Password"
+variable "user" {
+    type = string
 }
 
-variable "root_domain" {
-  type        = string
-  description = "Root Domain for hosting services"
+variable "email" {
+    type = string
 }
-
