@@ -4,7 +4,7 @@
 
 # Allow http
 resource "google_compute_firewall" "allow-http" {
-  name    = "default-fw-allow-http"
+  name    = "IDENTIFIER-fw-allow-http"
   network = default
   allow {
     protocol = "tcp"
@@ -17,7 +17,7 @@ resource "google_compute_firewall" "allow-http" {
 
 # allow https
 resource "google_compute_firewall" "allow-https" {
-  name    = "default-fw-allow-https"
+  name    = "IDENTIFIER-fw-allow-http"
   network = default
   allow {
     protocol = "tcp"
@@ -30,7 +30,7 @@ resource "google_compute_firewall" "allow-https" {
 
 # allow ssh
 resource "google_compute_firewall" "allow-ssh" {
-  name    = "default-fw-allow-ssh"
+  name    = "IDENTIFIER-fw-allow-http-fw-allow-ssh"
   network = default
   allow {
     protocol = "tcp"

@@ -46,7 +46,7 @@ EOT
 # Create VM
 resource "google_compute_instance" "gcp-cos-vm" {
   name         = "gcp-cos-vm-01"
-  machine_type = var.linux_instance_type
+  machine_type = var.vm_instance_type
   zone         = var.gcp_zone
   can_ip_forward = "true"
   allow_stopping_for_update = "true"
@@ -59,14 +59,14 @@ resource "google_compute_instance" "gcp-cos-vm" {
   boot_disk {
     initialize_params {
       type  = "pd-standard"   
-      # https://cloud.google.com/compute/docs/images/os-details
-      image = data.google_compute_image.cos.self_link
+      image = var.cos_97
     }
   }
 
   # Define Network
   network_interface {
-    network = "default"
+    network       = google_compute_network.vpc.name
+    subnetwork    = google_compute_subnetwork.network_subnet.name
     access_config {
     }
   }
@@ -91,7 +91,7 @@ resource "google_compute_disk" "default" {
 
 resource "google_compute_attached_disk" "default" {
   disk     = google_compute_disk.default.id
-  instance = google_compute_instance.pluto.id
+  instance = google_compute_instance.gcp-cos-vm.id
 }
 
 

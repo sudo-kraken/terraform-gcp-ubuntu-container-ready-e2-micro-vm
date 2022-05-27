@@ -1,14 +1,16 @@
 # Deploys a Container-Optimized OS Virtual Machine in GCP using Terraform
-Using the below instructions and supplied .tf files you will be able to deploy an e2-micro instance into GCP using Terraform, this is the free tier so shouldnt cost you a thing.
+Using the below instructions and supplied .tf files you will be able to deploy an e2-micro instance into GCP using Terraform, this is the free tier so shouldnt cost you a thing. This version comes with docker installed and will spin up containers for you this example will create an Uptime Kuma container.
 
 ## Instructions
 Firstly you will need to have a GCP account you can read more on this [here](https://cloud.google.com/free/docs/gcp-free-tier). Once this is done, go ahead and create yourself a blank project, name it whatever you like. Then enable the Compute Engine API, finally proceed to open up the cloud shell from within that project.
 
-Create the folders required for your auth and tf files. (You should automatically be in your home folder feel free to put these wherever you choose.)
+Create the folders required for your auth, ft,  and docker compose files. (You should automatically be in your home folder feel free to put these wherever you choose.)
 ```
 mkdir terraform
 
 mkdir auth
+
+mkdir compose_files
 ```
 
 Now you will need to create a service account to use Terraform with and give it all the required permissions necessary to provision the VM.
@@ -80,3 +82,5 @@ GCP Providers Definitions - **provider-main.tf**
 GCP Providers Terraform Variable Definitions - **provider-variables.tf**
 
 Terraform Variable Definitions - **terraform.tfvars**
+
+Docker Compose File for Containers - **docker-compose.yml**
