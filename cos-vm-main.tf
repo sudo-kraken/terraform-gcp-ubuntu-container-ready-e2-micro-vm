@@ -2,44 +2,14 @@
 ## GCP Linux VM - Main ##
 ##~~~~~~~~~~~~~~~~~~~~~##
 
-# Add module for cloudinit
-module "container-server" {
-  source  = "christippett/container-server/cloudinit"
-  version = "~> 1.2"
-
-  # change for your domain and also in the env section
-  domain = "gcp.${var.root_domain}"
-  email  = var.email_address
-
-  files = [
-    {
-      filename = "docker-compose.yaml"
-      content  = filebase64("${path.module}/../compose_files/docker-compose.yaml")
-    }
-  ]
-  env = {
-    TRAEFIK_API_DASHBOARD = false
-    DOCKER_APP_DATA       = "/run/app"
-    ADMIN_EMAIL           = var.email_address
-    ADMIN_PASSWORD        = var.admin_password
-    INET_DOMAIN           = "gcp.${var.root_domain}"
-  }
-
-  # Extra cloud-init config provided to setup and format persistent disk
-  cloudinit_part = [{
-    content_type = "text/cloud-config"
-    content      = local.cloudinit_disk
-  }]
-}
-
 # Prepare persistent disk
 locals {
   cloudinit_disk = <<EOT
 #cloud-config
 bootcmd:
   - fsck.ext4 -tvy /dev/sdb || mkfs.ext4 /dev/sdb
-  - mkdir -p /run/app
-  - mount -o defaults -t ext4 /dev/sdb /run/app
+  - mkdir -p /mnt/docker
+  - mount -o defaults -t ext4 /dev/sdb /mnt/docker
 EOT
 }
 
@@ -94,4 +64,8 @@ resource "google_compute_attached_disk" "default" {
   instance = google_compute_instance.gcp-cos-vm.id
 }
 
+provisioner "file" {
+  source      = "../compose_files/docker-compose.yaml"
+  destination = "/mnt/docker/projects/app/docker-compose.yaml"
+}
 

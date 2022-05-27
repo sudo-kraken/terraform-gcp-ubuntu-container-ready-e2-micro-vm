@@ -1,0 +1,60 @@
+ ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~##
+ ################################## Networks ####################################
+ ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~##
+
+networks:
+  proxy_net:
+    name: proxy_net
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 10.0.0.0/24
+
+ ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~##
+ ################################## Services ####################################
+ ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~##
+
+services:
+
+ ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~##
+ ################################## Uptime Kuma ####################################
+ ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~##
+
+  uptime-kuma:
+    container_name: uptime-kuma
+    image: louislam/uptime-kuma:latest
+    restart: unless-stopped
+    volumes:
+      - /root/docker/uptime-kuma:/app/data
+    networks:
+      - proxy_net
+    ports:
+      - 3001:3001
+    security_opt:
+      - no-new-privileges:true
+
+ ##~~~~~~~~~~~~~~~~~~~~##
+ ##### Healthchecks #####
+ ##~~~~~~~~~~~~~~~~~~~~##
+
+	healthchecks:
+		container_name: healthchecks
+    image: linuxserver/healthchecks:latest
+    restart: unless-stopped
+		environment:
+			- TZ=Europe/London
+			- SITE_ROOT=https://healthchecks.domainhere
+			- SITE_NAME=Health Checks
+			- SUPERUSER_EMAIL=adminemailhere
+			- SUPERUSER_PASSWORD=adminpasshere
+			- APPRISE_ENABLED=True
+			- PING_BODY_LIMIT=100000
+			- DEBUG=False
+		volumes:
+			- /mnt/docker/healthchecks:/config
+    networks:
+      - proxy_net
+    ports:
+      - 8000:8000
+    security_opt:
+      - no-new-privileges:true
