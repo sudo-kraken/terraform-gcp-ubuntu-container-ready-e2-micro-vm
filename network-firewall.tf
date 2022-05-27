@@ -2,38 +2,36 @@
 ## Network Firewall Rules - Main ##
 ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~##
 
-# Update IDENTIFIER in each of the rule names to be something related to the vm or user I just use vmname or my initials usually.
-
 # Allow http
 resource "google_compute_firewall" "allow-http" {
-  name    = "IDENTIFIER-fw-allow-http"
-  network = google_compute_network.vpc.name
+  name    = "default-fw-allow-http"
+  network = default
   allow {
     protocol = "tcp"
     ports    = ["80"]
   }
 
   source_ranges = ["0.0.0.0/0"]
-  target_tags = ["http"]
+  target_tags = ["http-server"]
 }
 
 # allow https
 resource "google_compute_firewall" "allow-https" {
-  name    = "IDENTIFIER-fw-allow-https"
-  network = google_compute_network.vpc.name
+  name    = "default-fw-allow-https"
+  network = default
   allow {
     protocol = "tcp"
     ports    = ["443"]
   }
 
   source_ranges = ["0.0.0.0/0"]
-  target_tags = ["https"]
+  target_tags = ["https-server"]
 }
 
 # allow ssh
 resource "google_compute_firewall" "allow-ssh" {
-  name    = "IDENTIFIER-fw-allow-ssh"
-  network = google_compute_network.vpc.name
+  name    = "default-fw-allow-ssh"
+  network = default
   allow {
     protocol = "tcp"
     ports    = ["22"]
@@ -41,17 +39,4 @@ resource "google_compute_firewall" "allow-ssh" {
 
   source_ranges = ["0.0.0.0/0"]
   target_tags = ["ssh"]
-}
-
-# allow rdp
-resource "google_compute_firewall" "allow-rdp" {
-  name    = "IDENTIFIER-fw-allow-rdp"
-  network = google_compute_network.vpc.name
-  allow {
-    protocol = "tcp"
-    ports    = ["3389"]
-  }
-
-  source_ranges = ["0.0.0.0/0"]
-  target_tags = ["rdp"]
 }
