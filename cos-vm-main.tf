@@ -2,7 +2,7 @@
 ## GCP Linux VM - Main ##
 ##~~~~~~~~~~~~~~~~~~~~~##
 
-# Create VM
+/* VM --------------------------------------------------------------------- */
 resource "google_compute_instance" "gcp-cos-vm" {
   name         = "gcp-cos-vm-01"
   machine_type = var.vm_instance_type
@@ -11,29 +11,44 @@ resource "google_compute_instance" "gcp-cos-vm" {
   allow_stopping_for_update = "true"
   tags         = ["ssh","http-server","https-server"]
 
- 
+
+/* Boot Disk --------------------------------------------------------------------- */
+resource "google_compute_disk" "boot-disk" {
+  name  = "gcp-cos-vm-01-boot-disk"
+  image = var.cos_97
+  size  = "10"
+  type  = "pd.standard"
+  zone  = var.gcp_zone
+  labels = {
+    vm        = "gcp-cos-vm-01"
+    managedby = "terraform"
+  }
+}
+
   boot_disk {
-    initialize_params {
-      type  = "pd-standard"   
-      image = var.cos_97
-    }
+    device_name = "gcp-cos-vm-01-boot-disk"
+    source      = google_compute_disk.boot-disk.self_link
   }
 
-/* Disk --------------------------------------------------------------------- */
-
-resource "google_compute_disk" "default" {
+/* App Data Disk --------------------------------------------------------------------- */
+resource "google_compute_disk" "app-data" {
   name    = "disk-app-server"
   type    = "pd-standard"
   zone    = "${var.gcp_zone}"
   size    = 20
+  labels = {
+    vm        = "gcp-cos-vm-01"
+    managedby = "terraform"
+  }  
 }
 
-resource "google_compute_attached_disk" "default" {
-  disk     = google_compute_disk.default.id
-  instance = google_compute_instance.gcp-cos-vm.id
+resource "google_compute_attached_disk" "app-data" {
+  disk     = google_compute_disk.app-data.self_link
+  instance = google_compute_instance.gcp-cos-vm.self_link
 
 }
 
+/* Startup Script --------------------------------------------------------------------- */
   metadata {
         startup-script = <<SCRIPT
         apt-get -y update
@@ -44,7 +59,7 @@ resource "google_compute_attached_disk" "default" {
         SCRIPT
     } 
 
-
+/* File Copy --------------------------------------------------------------------- */
 provisioner "file" {
    # source file name on the local machine where you execute terraform plan and apply
    source      = "../compose_files/docker-compose.yaml"
@@ -67,7 +82,7 @@ provisioner "file" {
    #]
  }
 
-  # Define Network
+  /* Network --------------------------------------------------------------------- */
   network_interface {
     network       = google_compute_network.vpc.name
     subnetwork    = google_compute_subnetwork.network_subnet.name
@@ -75,6 +90,7 @@ provisioner "file" {
     }
   }
 
+  /* Options --------------------------------------------------------------------- */
   scheduling {
     automatic_restart = true
   }
