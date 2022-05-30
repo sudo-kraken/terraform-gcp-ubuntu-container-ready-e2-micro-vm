@@ -8,10 +8,16 @@ variable "vm_instance_type" {
   default     = "e2-micro"
 }
 
+variable "vm_name" {
+  type        = string
+  description = "VM name"
+}
+
 variable "privatekeypath" {
     type = string
     default = "~/.ssh/sshkey"
 }
+
 variable "publickeypath" {
     type = string
     default = "~/.ssh/sshkey.pub"

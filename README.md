@@ -11,6 +11,8 @@ mkdir terraform
 mkdir auth
 
 mkdir compose_files
+
+mkdir startup
 ```
 
 Now you will need to create a service account to use Terraform with and give it all the required permissions necessary to provision the VM.
