@@ -1,5 +1,5 @@
-# Deploys a Container-Optimized OS Virtual Machine in GCP using Terraform
-Using the below instructions and supplied .tf files you will be able to deploy an e2-micro instance into GCP using Terraform, this is the free tier so shouldnt cost you a thing. This version comes with docker installed and will spin up containers for you this example will create an Uptime Kuma container.
+# Deploys a Ubuntu Minimal OS Virtual Machine with Docker-ce and Docker Compose installed in GCP using Terraform
+Using the below instructions and supplied .tf files you will be able to deploy an e2-micro instance into GCP using Terraform, this is the free tier so shouldnt cost you a thing. This version comes with docker installed and will inject a compose file into the app data drive in /mnt/disks/docker/projects/app my example contains an Uptime Kuma and Healthchecks container.
 
 ## Instructions
 Firstly you will need to have a GCP account you can read more on this [here](https://cloud.google.com/free/docs/gcp-free-tier). Once this is done, go ahead and create yourself a blank project, name it whatever you like. Then enable the Compute Engine API, finally proceed to open up the cloud shell from within that project.
@@ -14,6 +14,7 @@ mkdir compose_files
 
 mkdir startup
 ```
+You will also need to store a private and public key in your ~/.ssh folder and name them "sshkey" and "sshkey.pub", these should container your OpenSSH format keys, this will be what is added to the VM so that you can SSH in on the public interface to manage it.
 
 Now you will need to create a service account to use Terraform with and give it all the required permissions necessary to provision the VM.
 
@@ -65,13 +66,13 @@ Voila! if all is well you should be presented with the information of your new v
 
 ### Notes
 
-COS Version Definitions - **cos-versions.tf**
+Ubuntu Version Definitions - **ubnt-versions.tf**
 
-Main VM Configuration Definitions - **cos-vm-main.tf**
+Main VM Configuration Definitions - **ubnt-vm-main.tf**
 
-Information To Display When Provisioning Completes - **cos-vm-output.tf**
+Information To Display When Provisioning Completes - **ubnt-vm-output.tf**
 
-Main VM Terraform Variable Definitions - **cos-vm-variables.tf**
+Main VM Terraform Variable Definitions - **ubnt-vm-variables.tf**
 
 Network Firewall Rule Definitions - **network-firewall.tf**
 
@@ -86,3 +87,5 @@ GCP Providers Terraform Variable Definitions - **provider-variables.tf**
 Terraform Variable Definitions - **terraform.tfvars**
 
 Docker Compose File for Containers - **docker-compose.yml**
+
+Startup Script - **startup.sh**
