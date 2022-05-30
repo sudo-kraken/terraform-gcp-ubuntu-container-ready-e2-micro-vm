@@ -2,19 +2,6 @@
 ## GCP Linux VM - Main ##
 ##~~~~~~~~~~~~~~~~~~~~~##
 
-# Prepare persistent disk
-locals {
-  cloudinit_disk = <<EOT
-#cloud-config
-bootcmd:
-  - fsck.ext4 -tvy /dev/sdb || mkfs.ext4 /dev/sdb
-  - mkdir -p /mnt/diskd/docker
-  - mount -o defaults -t ext4 /dev/sdb /mnt/disks/docker
-  - mkdir -p /mnt/docker/projects/app
-EOT
-
-}
-
 # Create VM
 resource "google_compute_instance" "gcp-cos-vm" {
   name         = "gcp-cos-vm-01"
@@ -31,6 +18,32 @@ resource "google_compute_instance" "gcp-cos-vm" {
       image = var.cos_97
     }
   }
+
+/* Disk --------------------------------------------------------------------- */
+
+resource "google_compute_disk" "default" {
+  name    = "disk-app-server"
+  type    = "pd-standard"
+  zone    = "${var.gcp_zone}"
+  size    = 20
+}
+
+resource "google_compute_attached_disk" "default" {
+  disk     = google_compute_disk.default.id
+  instance = google_compute_instance.gcp-cos-vm.id
+
+}
+
+  metadata {
+        startup-script = <<SCRIPT
+        apt-get -y update
+        fsck.ext4 -tvy /dev/sdb || mkfs.ext4 /dev/sdb
+        mkdir -p /mnt/diskd/docker
+        mount -o defaults -t ext4 /dev/sdb /mnt/disks/docker
+        mkdir -p /mnt/docker/projects/app
+        SCRIPT
+    } 
+
 
 provisioner "file" {
    # source file name on the local machine where you execute terraform plan and apply
@@ -73,20 +86,5 @@ provisioner "file" {
   metadata = {
     ssh-keys = "${var.user}:${file(var.publickeypath)}"
   }
-
-}
-
-/* Disk --------------------------------------------------------------------- */
-
-resource "google_compute_disk" "default" {
-  name    = "disk-app-server"
-  type    = "pd-standard"
-  zone    = "${var.gcp_zone}"
-  size    = 20
-}
-
-resource "google_compute_attached_disk" "default" {
-  disk     = google_compute_disk.default.id
-  instance = google_compute_instance.gcp-cos-vm.id
 
 }
