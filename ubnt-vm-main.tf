@@ -15,7 +15,7 @@ resource "google_compute_disk" "app-data" {
 }
 
 /* VM --------------------------------------------------------------------- */
-resource "google_compute_instance" "gcp-cos-vm" {
+resource "google_compute_instance" "gcp-ubnt-vm" {
   name         = var.vm_name
   machine_type = var.vm_instance_type
   zone         = var.gcp_zone
@@ -27,7 +27,7 @@ resource "google_compute_instance" "gcp-cos-vm" {
 /* Boot Disk --------------------------------------------------------------------- */
   boot_disk {
       initialize_params {
-          image = var.cos_97
+          image = var.ubnt_2204
       }
   }
 
@@ -68,7 +68,7 @@ provisioner "file" {
    # destination is the file location on the newly created instance
    destination = "/home/${var.user}/docker-compose.yaml"
    connection {
-     host        = google_compute_instance.gcp-cos-vm.network_interface.0.access_config.0.nat_ip
+     host        = google_compute_instance.gcp-ubnt-vm.network_interface.0.access_config.0.nat_ip
      type        = "ssh"
      # username of the instance would vary for each account refer the OS Login in GCP documentation
      user        = var.user
