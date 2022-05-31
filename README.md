@@ -45,7 +45,7 @@ gcloud services enable storage.googleapis.com
 gcloud services enable serviceusage.googleapis.com
 
 # For all of the below commands ensure that you update PROJECT-ID-HERE with your project ID.
-gcloud projects add-iam-policy-binding PROJECT-ID-HERE --member serviceAccount:tf-serviceaccount@.iam.gserviceaccount.com --role roles/viewer
+gcloud projects add-iam-policy-binding PROJECT-ID-HERE --member serviceAccount:tf-serviceaccount@PROJECT-ID-HERE.iam.gserviceaccount.com --role roles/viewer
 
 gcloud projects add-iam-policy-binding PROJECT-ID-HERE --member serviceAccount:tf-serviceaccount@PROJECT-ID-HERE.iam.gserviceaccount.com --role roles/storage.admin
 
