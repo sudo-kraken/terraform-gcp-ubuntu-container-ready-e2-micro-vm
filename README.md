@@ -1,6 +1,8 @@
 # Deploys a Ubuntu Minimal OS Virtual Machine with Docker-ce and Docker Compose installed in GCP using Terraform
 Using the below instructions and supplied .tf files you will be able to deploy an e2-micro instance into GCP using Terraform, this is the free tier so shouldnt cost you a thing. This version comes with docker installed and will inject a compose file into the app data drive in /mnt/disks/docker/projects/app my example contains an Uptime Kuma and Healthchecks container.
 
+____
+
 ## Instructions
 Firstly you will need to have a GCP account you can read more on this [here](https://cloud.google.com/free/docs/gcp-free-tier). Once this is done, go ahead and create yourself a blank project, name it whatever you like. Then enable the Compute Engine API, finally proceed to open up the cloud shell from within that project.
 
@@ -63,51 +65,52 @@ terraform apply
 ```
 
 Voila! if all is well you should be presented with the information of your new vm. You can now SSH in or go through the cloud console SSH which can be found in the GCP Compute Engine under VM Instances.
+____
 
 ### Notes
 
-Ubuntu Version Definitions - **ubnt-versions.tf**
+- Ubuntu Version Definitions - **ubnt-versions.tf**
 
-Main VM Configuration Definitions - **ubnt-vm-main.tf**
+- Main VM Configuration Definitions - **ubnt-vm-main.tf**
 
-Information To Display When Provisioning Completes - **ubnt-vm-output.tf**
+- Information To Display When Provisioning Completes - **ubnt-vm-output.tf**
 
-Main VM Terraform Variable Definitions - **ubnt-vm-variables.tf**
+- Main VM Terraform Variable Definitions - **ubnt-vm-variables.tf**
 
-Network Firewall Rule Definitions - **network-firewall.tf**
+- Network Firewall Rule Definitions - **network-firewall.tf**
 
-Network Definitions - **network-main.tf**
+- Network Definitions - **network-main.tf**
 
-Network Terraform Variable Definitions - **network-variables.tf**
+- Network Terraform Variable Definitions - **network-variables.tf**
 
-GCP Providers Definitions - **provider-main.tf**
+- GCP Providers Definitions - **provider-main.tf**
 
-GCP Providers Terraform Variable Definitions - **provider-variables.tf**
+- GCP Providers Terraform Variable Definitions - **provider-variables.tf**
 
-Terraform Variable Definitions - **terraform.tfvars**
+- Terraform Variable Definitions - **terraform.tfvars**
 
-Docker Compose File for Containers - **docker-compose.yml**
+- Docker Compose File for Containers - **docker-compose.yml**
 
-Startup Script - **startup.sh**
+- Startup Script - **startup.sh**
 
 ### Google Free Tier Information
 I have highlighted the key information in bold below.
 
 **Compute Engine**
-* 1 non-preemptible **e2-micro VM** instance per month in one of the following US regions:
-*  Oregon: **us-west1**
-* Iowa: us-central1
-* South Carolina: us-east1
-* 30 GB-months standard persistent disk**
-* 5 GB-month snapshot storage** in the following regions:
-* Oregon: **us-west1**
-* Iowa: us-central1
-* South Carolina: us-east1
-* Taiwan: asia-east1
-* Belgium: europe-west1
-* **1 GB network egress from North America to all region destinations** (excluding China and Australia) per month
-* **Your Free Tier e2-micro instance limit is by time**, not by instance. Each month, eligible use of all of your e2-micro instance is free until you have used a number of hours equal to the total hours in the current month. Usage calculations are combined across the supported regions.
+- 1 non-preemptible **e2-micro VM** instance per month in one of the following US regions:
+    - Oregon: **us-west1**
+    - Iowa: us-central1
+    - South Carolina: us-east1
+- 30 GB-months standard persistent disk**
+- 5 GB-month snapshot storage** in the following regions:
+    - Oregon: **us-west1**
+    - Iowa: us-central1
+    - South Carolina: us-east1
+    - Taiwan: asia-east1
+    - Belgium: europe-west1
+- **1 GB network egress from North America to all region destinations** (excluding China and Australia) per month
+- **Your Free Tier e2-micro instance limit is by time**, not by instance. Each month, eligible use of all of your e2-micro instance is free until you have used a number of hours equal to the total hours in the current month. Usage calculations are combined across the supported regions.
 
-* **Compute Engine free tier does not charge for an external IP address.**
+- **Compute Engine free tier does not charge for an external IP address.**
 
-* GPUs and TPUs are not included in the Free Tier offer. You are always charged for GPUs and TPUs that you add to VM instances.
+- GPUs and TPUs are not included in the Free Tier offer. You are always charged for GPUs and TPUs that you add to VM instances.
