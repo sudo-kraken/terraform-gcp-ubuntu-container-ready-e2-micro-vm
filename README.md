@@ -4,8 +4,9 @@ Using the below instructions and supplied .tf files you will be able to deploy a
 ____
 
 ## Instructions
-Firstly you will need to have a GCP account you can read more on this [here](https://cloud.google.com/free/docs/gcp-free-tier). Once this is done, go ahead and create yourself a blank project, name it whatever you like. Then enable the Compute Engine API, finally proceed to open up the cloud shell from within that project.
+Firstly you will need to have a GCP account you can read more on this [here](https://cloud.google.com/free/docs/gcp-free-tier). Once this is done, go ahead and create yourself a blank project, name it whatever you like. Then enable the Compute Engine API, finally proceed to open up the google cloud shell from within that project.
 
+Once in the cloud shell, make sure you are in /home/USERHERE
 Create the folders required for your auth, ft,  and docker compose files. (You should automatically be in your home folder feel free to put these wherever you choose.)
 ```
 mkdir terraform
@@ -16,6 +17,8 @@ mkdir compose_files
 
 mkdir startup
 ```
+Git clone this repo into the terraform folder and move the compose file into the compose_files folder, startup.sh into the startup folder.
+
 You will also need to store a private and public key in your ~/.ssh folder and name them "sshkey" and "sshkey.pub", these should container your OpenSSH format keys, this will be what is added to the VM so that you can SSH in on the public interface to manage it.
 
 Now you will need to create a service account to use Terraform with and give it all the required permissions necessary to provision the VM.
