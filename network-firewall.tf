@@ -1,6 +1,8 @@
 ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~##
 ## Network Firewall Rules - Main ##
 ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~##
+##     Change as Required        ##
+##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~##
 
 # Allow http
 resource "google_compute_firewall" "allow-http" {

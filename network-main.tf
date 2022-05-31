@@ -1,6 +1,8 @@
-##~~~~~~~~~~~~~~~~##
-## Network - Main ##
-##~~~~~~~~~~~~~~~~##
+##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~##
+##      Network - Main           ##
+##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~##
+##     Change as Required        ##
+##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~##
 
 # Update IDENTIFIER in the name fields below with something unique to you like VM name or your initials.
 

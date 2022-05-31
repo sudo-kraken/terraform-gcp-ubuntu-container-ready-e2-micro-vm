@@ -1,6 +1,8 @@
-##~~~~~~~~~~~~~~~~~~~~~~~~~~##
-## Terraform - Variables ##
-##~~~~~~~~~~~~~~~~~~~~~~~~~~##
+##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~##
+##     Terraform - Variables     ##
+##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~##
+##     Change as Required        ##
+##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~##
 
 # Please update all the info below with your own project ID, region you want this hosted in, network CIDR and instance type.
 

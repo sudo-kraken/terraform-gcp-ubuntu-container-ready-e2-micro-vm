@@ -1,6 +1,8 @@
-##~~~~~~~~~~~~~~~~~~~~~~~~~~##
-## GCP Provider - Variables ##
-##~~~~~~~~~~~~~~~~~~~~~~~~~~##
+##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~##
+##     GCP Provider - Variables  ##
+##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~##
+##     Change as Required        ##
+##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~##
 
 # GCP authentication file
 variable "gcp_auth_file" {

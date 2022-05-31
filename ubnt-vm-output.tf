@@ -1,6 +1,8 @@
-##~~~~~~~~~~~~~~~~~~~~~~~##
-## GCP Linux VM - Output ##
-##~~~~~~~~~~~~~~~~~~~~~~~##
+##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~##
+##     GCP Linux VM - Output     ##
+##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~##
+##     Change as Required        ##
+##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~##
 
 output "vm-name" {
   value = google_compute_instance.gcp-ubnt-vm.name
