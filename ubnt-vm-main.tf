@@ -9,7 +9,7 @@ resource "google_compute_disk" "app-data" {
   name    = "app-data"
   type    = "pd-standard"
   zone    = "${var.gcp_zone}"
-  size    = 20
+  size    = 30
   labels = {
     vm        = "gcp-cos-vm-01"
     managedby = "terraform"
