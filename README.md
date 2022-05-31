@@ -65,6 +65,11 @@ terraform apply
 ```
 
 Voila! if all is well you should be presented with the information of your new vm. You can now SSH in or go through the cloud console SSH which can be found in the GCP Compute Engine under VM Instances.
+
+By Default Google sets the VM networking to premium, so dont forget to go and change it to standard, as shown here.
+
+![image](https://user-images.githubusercontent.com/53116754/171113057-e9b5409d-1719-422e-a28c-36da70bfee2d.png)
+
 ____
 
 ### Notes
