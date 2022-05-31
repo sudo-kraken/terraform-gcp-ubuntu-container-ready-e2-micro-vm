@@ -29,7 +29,7 @@ services:
     image: louislam/uptime-kuma:latest
     restart: unless-stopped
     volumes:
-      - /root/docker/uptime-kuma:/app/data
+      - /mnt/disks/docker/uptime-kuma:/app/data
     networks:
       - proxy_net
     ports:
@@ -55,7 +55,7 @@ services:
       - PING_BODY_LIMIT=100000
       - DEBUG=False
     volumes:
-      - /mnt/docker/healthchecks:/config
+      - /mnt/disks/docker/healthchecks:/config
     networks:
       - proxy_net
     ports:
