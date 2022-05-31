@@ -9,13 +9,15 @@ Firstly you will need to have a GCP account you can read more on this [here](htt
 Once in the cloud shell, make sure you are in /home/USERHERE
 Create the folders required for your auth, tf,  and docker compose files. (You should automatically be in your home folder feel free to put these wherever you choose.)
 
-I made the folders in /home/USER.
-All TF files go in the terraform folder.
-docker-compose.yaml goes into compose_files
-auth command auto outputs into the /home/USER/auth folder
-and finally the startup.sh goes into the startup folder.
+- I made the folders in /home/USER.
+  - All TF files go in the terraform folder.
+  - docker-compose.yaml goes into compose_files
+  - The auth command auto outputs into the /home/USER/auth folder
+  - Finally the startup.sh goes into the startup folder.
 
 ```
+cd ~/
+
 mkdir terraform
 
 mkdir auth
