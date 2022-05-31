@@ -24,8 +24,8 @@ sudo apt install docker-ce nano -y
 
 # Install Docker Compose - manually add your username to the path
 sudo mkdir -p /home/USERNAMEHERE/.docker/cli-plugins
-sudo curl -L https://github.com/docker/compose/releases/download/v2.4.1/docker-compose-`uname -s`-`uname -m` -o /usr/local/bin/docker-compose
-sudo chmod +x /usr/local/bin/docker-compose
+sudo curl -L https://github.com/docker/compose/releases/download/v2.4.1/docker-compose-`uname -s`-`uname -m` -o /usr/local/lib/docker/cli-plugins/docker-compose
+sudo chmod +x /usr/local/lib/docker/cli-plugins/docker-compose
 sudo usermod -aG sudo USERNAMEHERE
 sudo usermod -aG docker USERNAMEHERE
 sleep 30
