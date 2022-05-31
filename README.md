@@ -7,7 +7,14 @@ ____
 Firstly you will need to have a GCP account you can read more on this [here](https://cloud.google.com/free/docs/gcp-free-tier). Once this is done, go ahead and create yourself a blank project, name it whatever you like. Then enable the Compute Engine API, finally proceed to open up the google cloud shell from within that project.
 
 Once in the cloud shell, make sure you are in /home/USERHERE
-Create the folders required for your auth, ft,  and docker compose files. (You should automatically be in your home folder feel free to put these wherever you choose.)
+Create the folders required for your auth, tf,  and docker compose files. (You should automatically be in your home folder feel free to put these wherever you choose.)
+
+I made the folders in /home/USER.
+All TF files go in the terraform folder.
+docker-compose.yaml goes into compose_files
+auth command auto outputs into the /home/USER/auth folder
+and finally the startup.sh goes into the startup folder.
+
 ```
 mkdir terraform
 
