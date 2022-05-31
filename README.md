@@ -67,7 +67,7 @@ terraform plan
 terraform apply
 ```
 
-Voila! if all is well you should be presented with the information of your new vm. You can now SSH in or go through the cloud console SSH which can be found in the GCP Compute Engine under VM Instances.
+Voila! if all is well you should be presented with the information of your new vm. You can now SSH in via the public IP or go through the cloud console SSH which can be found in the GCP Compute Engine under VM Instances. It can take a couple of minutes to complete all the installations and file injection once the machine is up so give it a few minutes to process, it will all be there I promise.
 
 By Default Google sets the VM networking to premium, so dont forget to go and change it to standard, as shown here.
 
