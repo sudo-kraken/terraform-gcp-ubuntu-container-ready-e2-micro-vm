@@ -4,6 +4,8 @@
 ##     Change as Required        ##
 ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~##
 
+# Update all instances of IDENTIFIER in the name fields below with something unique to you like VM name or your initials.
+
 # Allow http
 resource "google_compute_firewall" "allow-http" {
   name    = "IDENTIFIER-fw-allow-http"
