@@ -25,6 +25,8 @@ mkdir auth
 mkdir compose_files
 
 mkdir startup
+
+mkdir .ssh
 ```
 Git clone this repo into the terraform folder and move the compose file into the compose_files folder, startup.sh into the startup folder.
 
