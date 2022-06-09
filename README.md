@@ -88,29 +88,23 @@ ____
 
 ### Notes
 
-- Ubuntu Version Definitions - **ubnt-versions.tf**
-
-- Main VM Configuration Definitions - **ubnt-vm-main.tf**
-
-- Information To Display When Provisioning Completes - **ubnt-vm-output.tf**
-
-- Main VM Terraform Variable Definitions - **ubnt-vm-variables.tf**
-
-- Network Firewall Rule Definitions - **network-firewall.tf**
-
-- Network Definitions - **network-main.tf**
-
-- Network Terraform Variable Definitions - **network-variables.tf**
-
-- GCP Providers Definitions - **provider-main.tf**
-
-- GCP Providers Terraform Variable Definitions - **provider-variables.tf**
-
-- Terraform Variable Definitions - **terraform.tfvars**
-
-- Docker Compose File for Containers - **docker-compose.yml**
-
-- Startup Script - **startup.sh**
+.
+├─ auth/                               # Folder to store the API user credentials
+├─ compose_files/
+│  └─ docker-compose.yaml              # Docker compose configuration file
+├─ startup/
+│  └─ startup.sh                       # Startup script to install dependancies
+└─ terraform/
+   ├─ network-firewall.tf              # Network Firewall Rule Definitions
+   ├─ network-main.tf                  # Network Definitions
+   ├─ network-variables.tf             # Network Terraform Variable Definitions
+   ├─ provider-main.tf                 # GCP Providers Definitions
+   ├─ provider-variables.tf            # GCP Providers Terraform Variable Definitions
+   ├─ terraform.tfvars                 # Terraform Variable Definitions
+   ├─ ubnt-versions.tf                 # Ubuntu Version Definitions
+   ├─ ubnt-vm-main.tf                  # Main VM Configuration Definitions
+   ├─ ubnt-vm-output.tf                # Information To Display When Provisioning Completes
+   └─ ubnt-vm-variables.tf             # Main VM Terraform Variable Definitions
 
 ### Google Free Tier Information
 I have highlighted the key information in bold below.
