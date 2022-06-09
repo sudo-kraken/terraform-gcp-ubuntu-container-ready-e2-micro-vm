@@ -87,7 +87,7 @@ By Default Google sets the VM networking to premium, so dont forget to go and ch
 ____
 
 ### Notes
-
+``` sh
 .
 ├─ auth/                               # Folder to store the API user credentials
 ├─ compose_files/
@@ -105,7 +105,7 @@ ____
    ├─ ubnt-vm-main.tf                  # Main VM Configuration Definitions
    ├─ ubnt-vm-output.tf                # Information To Display When Provisioning Completes
    └─ ubnt-vm-variables.tf             # Main VM Terraform Variable Definitions
-
+```
 ### Google Free Tier Information
 I have highlighted the key information in bold below.
 
