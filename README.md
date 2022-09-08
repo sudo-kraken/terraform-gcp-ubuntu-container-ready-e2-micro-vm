@@ -133,3 +133,8 @@ I have highlighted the key information in bold below.
 - **Compute Engine free tier does not charge for an external IP address.**
 
 - GPUs and TPUs are not included in the Free Tier offer. You are always charged for GPUs and TPUs that you add to VM instances.
+
+
+### Infrastructure model
+
+![Infrastructure model](.infragenie/infrastructure_model.png)
