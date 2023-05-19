@@ -10,6 +10,7 @@ Everything from this point down is deprecated in favor of the doc's page, I am l
 ____
 
 ## Instructions
+*I am not currently hosting the docs online so I will update the repo here soon*
 Firstly you will need to have a GCP account you can read more on this [here](https://cloud.google.com/free/docs/gcp-free-tier). Once this is done, go ahead and create yourself a blank project, name it whatever you like. Then enable the Compute Engine API, finally proceed to open up the google cloud shell from within that project.
 
 Once in the cloud shell, make sure you are in /home/USERHERE
