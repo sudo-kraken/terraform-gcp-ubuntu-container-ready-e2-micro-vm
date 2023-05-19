@@ -18,7 +18,7 @@ Before you continue make sure that you have your :material-gmail: Gmail account 
 Firstly you should understand what exactly you are sigining up for, we are making this account to gain access to the GCP (Google Cloud Platform), in order to make a free forever VPS / VM you can read more on the offerings [here](https://cloud.google.com/free/docs/gcp-free-tier).
 
 <figure markdown>
-  ![gcp setup 1]([assets/gcp/1.png](https://github.com/Joeharrison94/terraform-gcp-ubuntu-container-ready-e2-micro-vm/blob/main/assets/gcp/1.png)){ width=1000 }
+  ![gcp setup 1](https://github.com/Joeharrison94/terraform-gcp-ubuntu-container-ready-e2-micro-vm/blob/main/assets/gcp/1.png){ width=1000 }
   <figcaption>Navigate to https://cloud.google.com and press the "Get started for free" button</figcaption>
 </figure>
 
