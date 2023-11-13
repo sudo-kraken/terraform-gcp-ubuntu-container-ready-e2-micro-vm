@@ -7,7 +7,7 @@
 Using the below instructions and supplied .tf files you will be able to deploy an e2-micro instance into GCP using Terraform, this is the free tier so shouldnt cost you a thing. This version comes with docker installed and will inject a compose file into the app data drive in /mnt/disks/docker/projects/app my example contains an Uptime Kuma and Healthchecks container.
 
 # 🔧 IMPORTANT
-I have moved all the installation instructions for this project over to my doc's site at [JoeHarrison94 Docs](https://sudo-kraken.github.io/docs/gcp-free-forever/) This contains everything you need to know and more to deploy this project.
+I have moved all the installation instructions for this project over to my doc's site at [sudo-kraken Docs](https://sudo-kraken.github.io/docs/gcp-free-forever/) This contains everything you need to know and more to deploy this project.
 
 Everything from this point down is deprecated in favor of the doc's page, I am leaving it in however for those of you who do not require a long and in-depth guide.
 
