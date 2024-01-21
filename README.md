@@ -1,7 +1,4 @@
 <p align="center">
-  <a href="https://sudo-kraken.github.io/docs/"><img src="https://capsule-render.vercel.app/api?type=waving&color=gradient&customColorList=2,2,5,30&height=250&section=header&text=Joe%20Harrison&fontSize=90&animation=fadeIn&fontAlignY=36&desc=Senior%20Site%20Reliability%20Developer&descAlignY=51&descAlign=65">
-  <img src="https://media.giphy.com/media/hvRJCLFzcasrR4ia7z/giphy.gif" width="50" alt="Repo Languages and Tools"/>
-  <br><br>
   <a href="https://www.buymeacoffee.com/jharrison94"><img src="https://www.buymeacoffee.com/assets/img/custom_images/orange_img.png">  
 
 # Deploys an Ubuntu Minimal OS Virtual Machine with Docker-ce and Docker Compose installed in GCP using Terraform
