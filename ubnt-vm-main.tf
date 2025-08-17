@@ -51,6 +51,7 @@ resource "google_compute_instance" "gcp-ubnt-vm" {
     network       = google_compute_network.vpc.name
     subnetwork    = google_compute_subnetwork.network_subnet.name
     access_config {
+      network_tier = "STANDARD"
     }
   }
 
