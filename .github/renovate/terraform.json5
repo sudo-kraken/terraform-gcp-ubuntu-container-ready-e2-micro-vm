@@ -1,0 +1,38 @@
+{
+  $schema: "https://docs.renovatebot.com/renovate-schema.json",
+  customManagers: [
+    {
+      description: ["Process Terraform/Terragrunt files"],
+      customType: "regex",
+      fileMatch: ["(^|/)terragrunt\\.hcl$"],
+      matchStrings: [
+        '(?<depName>\\S*)_version_constraint\\s+=\\s+"(?<currentValue>\\S*)"',
+      ],
+      datasourceTemplate: "github-releases",
+      depNameTemplate: '{{#if (containsString depName "terragrunt")}}gruntwork-io/terragrunt{{else}}hashicorp/terraform{{/if}}',
+    },
+    {
+      description: ["Process Terraform plugin"],
+      customType: "regex",
+      fileMatch: ["(^|/)terragrunt\\.hcl$"],
+      matchStrings: [
+        'source[\\s]+=[\\s]+"(?<depName>\\S*)"[\\s]+version[\\s]+=[\\s]+"=?(?<currentValue>\\S*)"',
+      ],
+      datasourceTemplate: "terraform-provider",
+    },
+  ],
+  packageRules: [
+    {
+      description: ["Process terragrunt files"],
+      matchPackagePatterns: ["terragrunt"],
+      matchDatasources: ["github-releases"],
+      versioning: "regex:^v?(?<major>\\d+)\\.(?<minor>\\d+)\\.(?<patch>\\d+)",
+    },
+    {
+      description: ["Process terraform files"],
+      matchPackagePatterns: ["terraform"],
+      matchDatasources: ["github-releases"],
+      versioning: "regex:^v?(?<major>\\d+)\\.(?<minor>\\d+)\\.(?<patch>\\d+)",
+    },
+  ],
+}

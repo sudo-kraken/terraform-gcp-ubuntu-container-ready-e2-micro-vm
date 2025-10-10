@@ -1,0 +1,48 @@
+# yaml-language-server: $schema=https://json.schemastore.org/github-workflow.json
+name: Devcontainer Smoke Test
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+concurrency:
+  group: devcontainer-smoke-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  smoke:
+    name: Smoke Test Dev Container
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Build devcontainer
+        uses: devcontainers/ci@v0.3
+        with:
+          runCmd: echo "container up"
+
+      - name: Verify Terraform in devcontainer
+        uses: devcontainers/ci@v0.3
+        with:
+          runCmd: |
+            bash -lc '
+              set -euo pipefail
+
+              echo "Terraform version"
+              terraform version
+
+              echo "Terraform init"
+              terraform init -backend=false
+
+              echo "Terraform validate"
+              terraform validate
+
+              echo "Terraform plan (dry run)"
+              terraform plan -input=false -lock=false -detailed-exitcode || true
+
+              echo "OK: Terraform is working in devcontainer"
+            '

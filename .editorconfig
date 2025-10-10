@@ -1,0 +1,25 @@
+# https://EditorConfig.org
+
+# top-most EditorConfig file
+root = true
+
+[*]
+charset = utf-8
+trim_trailing_whitespace = true
+end_of_line = lf
+indent_size = 2
+indent_style = space
+insert_final_newline = true
+
+# Python
+[*.py]
+indent_size = 4
+
+# JSON
+[*.json]
+indent_size = 2
+insert_final_newline = ignore
+
+# YAML
+[*.{yaml,yml}]
+indent_size = 2

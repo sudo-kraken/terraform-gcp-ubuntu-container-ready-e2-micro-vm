@@ -1,0 +1,279 @@
+---
+# yaml-language-server: $schema=https://json.schemastore.org/github-workflow.json
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  changelog:
+    name: Generate changelog
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+    outputs:
+      release_body: ${{ steps.git-cliff.outputs.content }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Generate changelog
+        id: git-cliff
+        uses: orhun/git-cliff-action@d77b37db2e3f7398432d34b72a12aa3e2ba87e51 # v4.6.0
+        with:
+          config: .github/cliff.toml
+          args: -vv --current
+        env:
+          OUTPUT: CHANGELOG.md
+          GITHUB_REPO: ${{ github.repository }}
+
+  create-draft-release:
+    name: Create draft release
+    runs-on: ubuntu-24.04
+    needs: changelog
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+        with:
+          persist-credentials: false
+
+      - name: Draft Release
+        run: gh release create ${GITHUB_REF_NAME} -t "Release ${GITHUB_REF_NAME}" -n "${RELEASE_BODY}" --draft
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          RELEASE_BODY: ${{ needs.changelog.outputs.release_body }}
+
+  prepare-artifacts:
+    name: Prepare release artifacts
+    needs: create-draft-release
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+    env:
+      VERSION: ${{ github.ref_name }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+        with:
+          persist-credentials: false
+
+      - name: Create release archive
+        run: |
+          mkdir -p release
+
+          # Create tar.gz with main script and essential files
+          tar -czf release/terraform-gcp-${VERSION}.tar.gz \
+            *.tf \
+            terraform.tfvars \
+            startup.sh \
+            docker-compose.yml \
+            README.md \
+            LICENSE \
+            SECURITY.md \
+            SUPPORT.md
+
+          # Create checksums
+          cd release
+          sha256sum terraform-gcp-${VERSION}.tar.gz > terraform-gcp-${VERSION}.tar.gz.sha256
+          sha512sum terraform-gcp-${VERSION}.tar.gz > terraform-gcp-${VERSION}.tar.gz.sha512
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: release-artifacts-${{ env.VERSION }}
+          path: release/*
+          if-no-files-found: error
+          retention-days: 1
+
+  sign:
+    if: startsWith(github.ref, 'refs/tags/')
+    name: Sign artifacts and create SBOM attestation
+    needs: prepare-artifacts
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+      id-token: write
+    env:
+      VERSION: ${{ github.ref_name }}
+      COSIGN_YES: 'true'
+    steps:
+      - name: Checkout
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+        with:
+          persist-credentials: false
+
+      - name: Install Cosign
+        uses: sigstore/cosign-installer@d7543c93d881b35a8faa02e8e3605f69b7a1ce62 # v3.10.0
+
+      - name: Install Trivy
+        uses: aquasecurity/setup-trivy@e6c2c5e321ed9123bda567646e2f96565e34abe1 # v0.2.4
+
+      - name: Download artifacts
+        uses: actions/download-artifact@634f93cb2916e3fdff6788551b99b062d0335ce0 # v5.0.0
+        with:
+          name: release-artifacts-${{ env.VERSION }}
+          path: release
+
+      - name: Generate SBOM with Trivy
+        run: |
+          trivy fs --format cyclonedx --output terraform-gcp-${{ env.VERSION }}.sbom .
+
+      - name: Sign release artifacts
+        run: |
+          cd release
+
+          # Sign the tarball
+          cosign sign-blob \
+            --bundle terraform-gcp-${VERSION}.tar.gz.bundle \
+            terraform-gcp-${VERSION}.tar.gz
+
+      - name: Sign SBOM
+        run: |
+          # Sign the SBOM file
+          cosign sign-blob \
+            --bundle terraform-gcp-${{ env.VERSION }}.sbom.bundle \
+            terraform-gcp-${{ env.VERSION }}.sbom
+
+      - name: Upload signed artifacts
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: signed-artifacts-${{ env.VERSION }}
+          path: |
+            release/*.bundle
+            *.sbom
+            *.bundle
+          if-no-files-found: error
+          retention-days: 1
+
+  verify:
+    name: Verify signatures and attestation
+    needs: [prepare-artifacts, sign]
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+    env:
+      VERSION: ${{ github.ref_name }}
+    steps:
+      - name: Install Cosign
+        uses: sigstore/cosign-installer@d7543c93d881b35a8faa02e8e3605f69b7a1ce62 # v3.10.0
+
+      - name: Download release artifacts
+        uses: actions/download-artifact@634f93cb2916e3fdff6788551b99b062d0335ce0 # v5.0.0
+        with:
+          name: release-artifacts-${{ env.VERSION }}
+          path: release
+
+      - name: Download signed artifacts
+        uses: actions/download-artifact@634f93cb2916e3fdff6788551b99b062d0335ce0 # v5.0.0
+        with:
+          name: signed-artifacts-${{ env.VERSION }}
+          path: signed
+
+      - name: Verify signatures
+        run: |
+          cosign verify-blob \
+            --bundle signed/release/terraform-gcp-${VERSION}.tar.gz.bundle \
+            --certificate-identity "https://github.com/${{ github.workflow_ref }}" \
+            --certificate-oidc-issuer "https://token.actions.githubusercontent.com" \
+            release/terraform-gcp-${VERSION}.tar.gz
+
+      - name: Verify SBOM signature
+        run: |
+          cosign verify-blob \
+            --bundle signed/terraform-gcp-${VERSION}.sbom.bundle \
+            --certificate-identity "https://github.com/${{ github.workflow_ref }}" \
+            --certificate-oidc-issuer "https://token.actions.githubusercontent.com" \
+            signed/terraform-gcp-${VERSION}.sbom
+
+      - name: Verify checksums
+        run: |
+          cd release
+          sha256sum -c terraform-gcp-${VERSION}.tar.gz.sha256
+          sha512sum -c terraform-gcp-${VERSION}.tar.gz.sha512
+
+  publish-release:
+    name: Publish release
+    needs: [create-draft-release, verify]
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: write
+    env:
+      VERSION: ${{ github.ref_name }}
+    steps:
+      - name: Download release artifacts
+        uses: actions/download-artifact@634f93cb2916e3fdff6788551b99b062d0335ce0 # v5.0.0
+        with:
+          name: release-artifacts-${{ env.VERSION }}
+          path: release
+
+      - name: Download signed artifacts
+        uses: actions/download-artifact@634f93cb2916e3fdff6788551b99b062d0335ce0 # v5.0.0
+        with:
+          name: signed-artifacts-${{ env.VERSION }}
+          path: signed
+
+      - name: Upload artifacts to release
+        run: |
+          gh release upload "${{ env.VERSION }}" release/* --repo "${{ github.repository }}"
+          gh release upload "${{ env.VERSION }}" signed/*.sbom signed/*.bundle --repo "${{ github.repository }}"
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Publish release
+        run: |
+          gh release edit "${{ env.VERSION }}" --draft=false --repo "${{ github.repository }}"
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  discord:
+    name: Send Discord Notification
+    needs: publish-release
+    if: always()
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Determine status
+        id: status
+        run: |
+          case "${{ needs.publish-release.result }}" in
+            success)   echo "status=Success"   >> $GITHUB_OUTPUT; echo "colour=3066993"  >> $GITHUB_OUTPUT ;;
+            failure)   echo "status=Failure"   >> $GITHUB_OUTPUT; echo "colour=15158332" >> $GITHUB_OUTPUT ;;
+            cancelled) echo "status=Cancelled" >> $GITHUB_OUTPUT; echo "colour=10181046" >> $GITHUB_OUTPUT ;;
+            *)         echo "status=Skipped"   >> $GITHUB_OUTPUT; echo "colour=9807270"  >> $GITHUB_OUTPUT ;;
+          esac
+
+      - name: Send notification
+        run: |
+          WEBHOOK="${{ secrets.DISCORD_WEBHOOK }}"
+
+          PAYLOAD=$(cat <<EOF
+          {
+            "embeds": [{
+              "title": "${{ steps.status.outputs.status }}: ${{ github.workflow }}",
+              "color": ${{ steps.status.outputs.colour }},
+              "fields": [
+                { "name": "Repository",   "value": "[${{ github.repository }}](${{ github.server_url }}/${{ github.repository }})", "inline": true },
+                { "name": "Ref",          "value": "${{ github.ref }}", "inline": true },
+                { "name": "Event",        "value": "${{ github.event_name }}", "inline": true },
+                { "name": "Triggered by", "value": "${{ github.actor }}", "inline": true },
+                { "name": "Workflow",     "value": "[${{ github.workflow }}](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})", "inline": true }
+              ]
+            }]
+          }
+          EOF
+          )
+
+          curl -sS -H "Content-Type: application/json" -X POST -d "$PAYLOAD" "$WEBHOOK" || true

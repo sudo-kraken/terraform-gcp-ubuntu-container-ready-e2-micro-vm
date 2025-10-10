@@ -1,0 +1,35 @@
+{
+  "name": "terraform-gcp-ubuntu-container-ready-e2-micro-vm",
+  "build": {
+    "context": "../",
+    "dockerfile": "Dockerfile"
+  },
+  "features": {
+    "ghcr.io/audacioustux/devcontainers/taskfile:1": {},
+    "ghcr.io/devcontainers/features/terraform:1": {      "version": "1.13.3"}
+    },
+  "mounts": [
+    "source=/tmp,target=/tmp,type=bind,consistency=cached"
+  ],
+  "userEnvProbe": "loginInteractiveShell",
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "wholroyd.jinja",
+        "mrmlnc.vscode-json5",
+        "coolbear.systemd-unit-file",
+        "hashicorp.hcl",
+        "hashicorp.terraform",
+        "DavidAnson.vscode-markdownlint",
+        "ms-python.python",
+        "medo64.render-crlf",
+        "redhat.vscode-yaml",
+        "github.vscode-github-actions",
+        "donjayamanne.githistory",
+        "eamodio.gitlens",
+        "task.vscode-task",
+        "EditorConfig.EditorConfig"
+      ]
+    }
+  }
+}

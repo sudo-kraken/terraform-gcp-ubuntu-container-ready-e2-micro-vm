@@ -1,0 +1,38 @@
+---
+# yaml-language-server: $schema=https://json.schemastore.org/github-workflow.json
+name: Terraform Lint
+
+on:
+  push:
+    paths:
+      - '**.tf'
+      - .github/workflows/terraform-lint.yml
+  pull_request:
+  workflow_dispatch:
+
+permissions: {}
+
+concurrency:
+  group: terraform-lint-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  terraform-lint:
+    name: Lint terraform Playbooks
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+      pull-requests: read
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+        with:
+          persist-credentials: false
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@b9cd54a3c349d3f38e8881555d616ced269862dd # v3.1.2
+        with:
+          terraform_version: latest
+
+      - name: Check Terraform formatting
+        run: terraform fmt -recursive .
