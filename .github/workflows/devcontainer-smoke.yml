@@ -23,11 +23,13 @@ jobs:
       - name: Build devcontainer
         uses: devcontainers/ci@v0.3
         with:
+          push: never
           runCmd: echo "container up"
 
       - name: Verify Terraform in devcontainer
         uses: devcontainers/ci@v0.3
         with:
+          push: never
           runCmd: |
             bash -lc '
               set -euo pipefail
