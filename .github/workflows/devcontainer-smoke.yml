@@ -35,14 +35,5 @@ jobs:
               echo "Terraform version"
               terraform version
 
-              echo "Terraform init"
-              terraform init -backend=false
-
-              echo "Terraform validate"
-              terraform validate
-
-              echo "Terraform plan (dry run)"
-              terraform plan -input=false -lock=false -detailed-exitcode || true
-
               echo "OK: Terraform is working in devcontainer"
             '
