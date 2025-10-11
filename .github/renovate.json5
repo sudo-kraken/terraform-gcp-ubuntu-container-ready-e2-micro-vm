@@ -3,7 +3,6 @@
   description: "Automated dependency updates for terraform-gcp-ubuntu-container-ready-e2-micro-vm",
   extends: [
     "config:recommended",
-    "docker:enableMajor",
     "replacements:k8s-registry-move",
     ":automergePr",
     ":automergePatch",
@@ -12,6 +11,7 @@
     ":dependencyDashboard",
     ":semanticCommits",
     ":timezone(Europe/London)",
+    "github>sudo-kraken/terraform-gcp-ubuntu-container-ready-e2-micro-vm//.github/renovate/actions.json5",
     "github>sudo-kraken/terraform-gcp-ubuntu-container-ready-e2-micro-vm//.github/renovate/devcontainers.json5",
     "github>sudo-kraken/terraform-gcp-ubuntu-container-ready-e2-micro-vm//.github/renovate/labels.json5",
     "github>sudo-kraken/terraform-gcp-ubuntu-container-ready-e2-micro-vm//.github/renovate/semanticCommits.json5",
@@ -20,15 +20,10 @@
   dependencyDashboardTitle: "Renovate Dashboard 🤖",
   suppressNotifications: ["prEditedNotification", "prIgnoreNotification"],
   rebaseWhen: "conflicted",
-  schedule: ["before 9pm on friday"],
+  pruneStaleBranches: true,
+  pruneBranchAfterAutomerge: true,
   prConcurrentLimit: 5,
   labels: ["dependencies"],
+  schedule: ["after 9pm on sunday"],
   minimumReleaseAge: "7 days",
-
-  packageRules: [
-    {
-      matchManagers: ["github-actions"],
-      minimumReleaseAge: null,
-    },
-  ],
 }

@@ -1,0 +1,15 @@
+{
+  $schema: "https://docs.renovatebot.com/renovate-schema.json",
+
+  extends: ["helpers:pinGitHubActionDigests"],
+
+  packageRules: [
+    {
+      matchManagers: ["github-actions"],
+      minimumReleaseAge: null,
+      pinDigests: true,
+      automerge: true,
+      matchUpdateTypes: ["minor", "patch"],
+    },
+  ],
+}
