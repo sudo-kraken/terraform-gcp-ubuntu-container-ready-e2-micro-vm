@@ -59,7 +59,6 @@ jobs:
 
   prepare-artifacts:
     name: Prepare release artifacts
-    needs: create-draft-release
     runs-on: ubuntu-24.04
     permissions:
       contents: read
@@ -86,10 +85,12 @@ jobs:
             SECURITY.md \
             SUPPORT.md
 
-          # Create checksums
+          # Create consolidated checksums.txt with sha256 lines for each tarball
           cd release
-          sha256sum terraform-gcp-${VERSION}.tar.gz > terraform-gcp-${VERSION}.tar.gz.sha256
-          sha512sum terraform-gcp-${VERSION}.tar.gz > terraform-gcp-${VERSION}.tar.gz.sha512
+          : > checksums.txt
+          for f in *.tar.gz; do
+            sha256sum "$f" >> checksums.txt
+          done
 
       - name: Upload artifacts
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
@@ -135,18 +136,19 @@ jobs:
       - name: Sign release artifacts
         run: |
           cd release
-
-          # Sign the tarball
           cosign sign-blob \
             --bundle terraform-gcp-${VERSION}.tar.gz.bundle \
             terraform-gcp-${VERSION}.tar.gz
-
-      - name: Sign SBOM
+            
+      - name: Create SBOM attestation for the archive
         run: |
-          # Sign the SBOM file
-          cosign sign-blob \
+          # Attach the SBOM to the tarball as an attestation bundle
+          cosign attest-blob -y \
+            --type cyclonedx \
+            --new-bundle-format \
+            --predicate terraform-gcp-${{ env.VERSION }}.sbom \
             --bundle terraform-gcp-${{ env.VERSION }}.sbom.bundle \
-            terraform-gcp-${{ env.VERSION }}.sbom
+            release/terraform-gcp-${{ env.VERSION }}.tar.gz
 
       - name: Upload signed artifacts
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
@@ -191,19 +193,20 @@ jobs:
             --certificate-oidc-issuer "https://token.actions.githubusercontent.com" \
             release/terraform-gcp-${VERSION}.tar.gz
 
-      - name: Verify SBOM signature
+      - name: Verify SBOM attestation
         run: |
-          cosign verify-blob \
+          cosign verify-blob-attestation \
+            --type cyclonedx \
+            --new-bundle-format \
             --bundle signed/terraform-gcp-${VERSION}.sbom.bundle \
             --certificate-identity "https://github.com/${{ github.workflow_ref }}" \
             --certificate-oidc-issuer "https://token.actions.githubusercontent.com" \
-            signed/terraform-gcp-${VERSION}.sbom
+            release/terraform-gcp-${VERSION}.tar.gz
 
       - name: Verify checksums
         run: |
           cd release
-          sha256sum -c terraform-gcp-${VERSION}.tar.gz.sha256
-          sha512sum -c terraform-gcp-${VERSION}.tar.gz.sha512
+          sha256sum -c checksums.txt
 
   publish-release:
     name: Publish release
