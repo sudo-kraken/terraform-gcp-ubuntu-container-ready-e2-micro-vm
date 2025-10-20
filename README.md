@@ -1,142 +1,208 @@
-# Deploys an Ubuntu Minimal OS Virtual Machine with Docker-ce and Docker Compose installed in GCP using Terraform
-Using the below instructions and supplied .tf files you will be able to deploy an e2-micro instance into GCP using Terraform, this is the free tier so shouldnt cost you a thing. This version comes with docker installed and will inject a compose file into the app data drive in /mnt/disks/docker/projects/app my example contains an Uptime Kuma and Healthchecks container.
+<div align="center">
+<img src="docs/assets/logo.png" align="center" width="144px" height="144px"/>
 
-# 🔧 IMPORTANT
-I have moved all the installation instructions for this project over to my doc's site at [sudo-kraken Docs](https://sudo-kraken.github.io/docs/gcp-free-forever/) This contains everything you need to know and more to deploy this project.
+### Terraform GCP Ubuntu e2-micro VM
 
-<p align="center">
-  <a href="https://www.buymeacoffee.com/jharrison94" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" alt="Buy Me A Coffee" height="60px" width="217px" >
+_Deploys an Ubuntu Minimal VM on Google Cloud’s free tier with Docker CE and Docker Compose preinstalled. Injects a sample Compose project to an attached data disk for quick app bring-up._
+</div>
 
-Everything from this point down is deprecated in favor of the doc's page, I am leaving it in however for those of you who do not require a long and in-depth guide.
+<div align="center">
 
-____
+[![Terraform](https://img.shields.io/badge/Terraform-Required-623CE4?logo=terraform&logoColor=white&style=for-the-badge)](https://www.terraform.io/)
+[![Terraform Version](https://img.shields.io/badge/Terraform-1.6%2B-623CE4?logo=terraform&logoColor=white&style=for-the-badge)](https://www.terraform.io/)
 
-## Instructions
-Firstly you will need to have a GCP account you can read more on this [here](https://cloud.google.com/free/docs/gcp-free-tier). Once this is done, go ahead and create yourself a blank project, name it whatever you like. Then enable the Compute Engine API, finally proceed to open up the google cloud shell from within that project.
+</div>
 
-Once in the cloud shell, make sure you are in /home/USERHERE
-Create the folders required for your auth, tf,  and docker compose files. (You should automatically be in your home folder feel free to put these wherever you choose.)
+<div align="center">
 
-- I made the folders in /home/USER.
-  - All TF files go in the terraform folder.
-  - docker-compose.yaml goes into compose_files
-  - The auth command auto outputs into the /home/USER/auth folder
-  - Finally the startup.sh goes into the startup folder.
+[![OpenSSF Scorecard](https://img.shields.io/ossf-scorecard/github.com/sudo-kraken/terraform-gcp-ubuntu-container-ready-e2-micro-vm?label=openssf%20scorecard&style=for-the-badge)](https://scorecard.dev/viewer/?uri=github.com/sudo-kraken/terraform-gcp-ubuntu-container-ready-e2-micro-vm)
 
+</div>
+
+## Contents
+
+- [Overview](#overview)
+- [Architecture at a glance](#architecture-at-a-glance)
+- [Features](#features)
+- [Prerequisites](#prerequisites)
+- [Quick start](#quick-start)
+- [Repository structure](#repository-structure)
+- [Google Free Tier information](#google-free-tier-information)
+- [Troubleshooting](#troubleshooting)
+- [Infrastructure model](#infrastructure-model)
+- [Licence](#licence)
+- [Security](#security)
+- [Contributing](#contributing)
+- [Support](#support)
+
+## Overview
+
+Using the supplied Terraform configuration, this project deploys a free-tier eligible **e2-micro** VM running Ubuntu Minimal, with **Docker CE** and **Docker Compose** installed automatically. A sample Compose file is injected onto a data disk at `/mnt/disks/docker/projects/app` that runs **Uptime Kuma** and **Healthchecks** as examples.
+
+> [!NOTE]  
+> The full, step-by-step installation guide lives in my docs site: **[sudo-kraken Docs](https://sudo-kraken.github.io/docs/gcp-free-forever/)**. The sections below summarise the essentials for quick use.
+
+## Architecture at a glance
+
+- Terraform Google provider provisions:
+  - **Compute Engine e2-micro** instance based on **Ubuntu Minimal**
+  - Optional **secondary persistent disk** for container data, mounted at `/mnt/disks/docker`
+  - **Firewall rules** for required ingress such as SSH and web ports as defined in `network-firewall.tf`
+- **Startup script** installs Docker CE and Docker Compose then places a sample `docker-compose.yaml` under `/mnt/disks/docker/projects/app`
+- **SSH key injection** from `~/.ssh/sshkey.pub`
+- Outputs expose VM details including external IP
+
+## Features
+
+- Free-tier friendly deployment targeting eligible US regions
+- Automatic install of Docker CE and Docker Compose
+- Sample Compose project seeded to a mounted data disk
+- Separate Terraform files for provider, network, VM and variables for clarity
+- Opinionated defaults you can customise via `terraform.tfvars`
+
+## Prerequisites
+
+- A Google Cloud account with Free Tier enabled
+- A new or existing GCP project with **Compute Engine API** enabled
+- A **service account** with keys and the following roles at project scope:
+  - `roles/viewer`
+  - `roles/storage.admin`
+  - `roles/compute.instanceAdmin.v1`
+  - `roles/compute.networkAdmin`
+  - `roles/compute.securityAdmin`
+- SSH keypair in `~/.ssh/sshkey` and `~/.ssh/sshkey.pub` in OpenSSH format
+- Terraform 1.6 or newer
+
+> [!NOTE]  
+> Google defaults VM network service tier to Premium. Switch to **Standard** to stay aligned with free-tier usage. See the screenshot below.
+
+## Quick start
+
+Create basic folders in Cloud Shell or your workstation:
+
+```bash
+cd ~
+mkdir -p terraform auth compose_files startup .ssh
 ```
-cd ~/
 
-mkdir terraform
+Clone and copy files:
 
-mkdir auth
-
-mkdir compose_files
-
-mkdir startup
-
-mkdir .ssh
-```
-Git clone this repo into the terraform folder and move the compose file into the compose_files folder, startup.sh into the startup folder.
-
-You will also need to store a private and public key in your ~/.ssh folder and name them "sshkey" and "sshkey.pub", these should container your OpenSSH format keys, this will be what is added to the VM so that you can SSH in on the public interface to manage it.
-
-Now you will need to create a service account to use Terraform with and give it all the required permissions necessary to provision the VM.
-
-```
-# Creates a service account named tf-serviceaccount 
-gcloud iam service-accounts create tf-serviceaccount --description="service account for terraform" --display-name="terraform_service_account"
-
-# List accounts to ensure it was created
-gcloud iam service-accounts list
-
-# Create keys for the service account to use when provisioning and store them in the auth folder.
-**Ensure that you update PROJECT-ID-HERE with your project ID.**
-gcloud iam service-accounts keys create ~/auth/google-key.json --iam-account tf-serviceaccount@PROJECT-ID-HERE.iam.gserviceaccount.com
+```bash
+git clone https://github.com/sudo-kraken/terraform-gcp-ubuntu-container-ready-e2-micro-vm.git ~/terraform
+# Place your docker-compose.yaml into ~/compose_files
+# Place startup.sh into ~/startup
 ```
 
-With this done we will now add the following permissions to the service account.
+Create a service account and key:
 
+```bash
+# Replace PROJECT-ID-HERE with your project id
+gcloud iam service-accounts create tf-serviceaccount \
+  --description="service account for terraform" \
+  --display-name="terraform_service_account"
+
+gcloud iam service-accounts keys create ~/auth/google-key.json \
+  --iam-account tf-serviceaccount@PROJECT-ID-HERE.iam.gserviceaccount.com
 ```
-gcloud services enable cloudresourcemanager.googleapis.com
-gcloud services enable cloudbilling.googleapis.com
-gcloud services enable iam.googleapis.com
-gcloud services enable storage.googleapis.com
-gcloud services enable serviceusage.googleapis.com
 
-# For all of the below commands ensure that you update PROJECT-ID-HERE with your project ID.
+Enable required services and bind roles:
+
+```bash
+gcloud services enable cloudresourcemanager.googleapis.com cloudbilling.googleapis.com iam.googleapis.com storage.googleapis.com serviceusage.googleapis.com
+
 gcloud projects add-iam-policy-binding PROJECT-ID-HERE --member serviceAccount:tf-serviceaccount@PROJECT-ID-HERE.iam.gserviceaccount.com --role roles/viewer
-
 gcloud projects add-iam-policy-binding PROJECT-ID-HERE --member serviceAccount:tf-serviceaccount@PROJECT-ID-HERE.iam.gserviceaccount.com --role roles/storage.admin
-
 gcloud projects add-iam-policy-binding PROJECT-ID-HERE --member serviceAccount:tf-serviceaccount@PROJECT-ID-HERE.iam.gserviceaccount.com --role roles/compute.instanceAdmin.v1
-
 gcloud projects add-iam-policy-binding PROJECT-ID-HERE --member serviceAccount:tf-serviceaccount@PROJECT-ID-HERE.iam.gserviceaccount.com --role roles/compute.networkAdmin
-
 gcloud projects add-iam-policy-binding PROJECT-ID-HERE --member serviceAccount:tf-serviceaccount@PROJECT-ID-HERE.iam.gserviceaccount.com --role roles/compute.securityAdmin
 ```
 
-Now you will want to copy all of the .tf files in this repo into the terraform folder we created earlier, ensure you read all of them carefully and update each one with your own information.
+Copy the `.tf` files from this repo into your `~/terraform` folder, review and update variables to match your project and region, then run:
 
-You should now be ready to deploy. First you will run the init, to pull all dependancies, then a plan to test the config and finally apply to build the project.
-```
+```bash
+cd ~/terraform
 terraform init
-
 terraform plan
-
 terraform apply
 ```
 
-Voila! if all is well you should be presented with the information of your new vm. You can now SSH in via the public IP or go through the cloud console SSH which can be found in the GCP Compute Engine under VM Instances. It can take a couple of minutes to complete all the installations and file injection once the machine is up so give it a few minutes to process, it will all be there I promise.
+After apply completes, connect via the external IP using your SSH key or use the Cloud Console’s SSH. Allow a few minutes for the startup script to finish installing Docker and placing the Compose project.
 
-By Default Google sets the VM networking to premium, so dont forget to go and change it to standard, as shown here.
+## Repository structure
 
-![image](https://user-images.githubusercontent.com/53116754/171113057-e9b5409d-1719-422e-a28c-36da70bfee2d.png)
-
-____
-
-### Notes
-``` sh
+```text
 .
-├─ auth/                               # Folder to store the API user credentials
+├─ auth/                               # API user credentials
 ├─ compose_files/
-│  └─ docker-compose.yaml              # Docker compose configuration file
+│  └─ docker-compose.yaml              # Docker Compose configuration
 ├─ startup/
-│  └─ startup.sh                       # Startup script to install dependancies
+│  └─ startup.sh                       # Installs dependencies and seeds files
 └─ terraform/
-   ├─ network-firewall.tf              # Network Firewall Rule Definitions
-   ├─ network-main.tf                  # Network Definitions
-   ├─ network-variables.tf             # Network Terraform Variable Definitions
-   ├─ provider-main.tf                 # GCP Providers Definitions
-   ├─ provider-variables.tf            # GCP Providers Terraform Variable Definitions
-   ├─ terraform.tfvars                 # Terraform Variable Definitions
-   ├─ ubnt-versions.tf                 # Ubuntu Version Definitions
-   ├─ ubnt-vm-main.tf                  # Main VM Configuration Definitions
-   ├─ ubnt-vm-output.tf                # Information To Display When Provisioning Completes
-   └─ ubnt-vm-variables.tf             # Main VM Terraform Variable Definitions
+   ├─ network-firewall.tf              # Firewall rule definitions
+   ├─ network-main.tf                  # Network definitions
+   ├─ network-variables.tf             # Network variables
+   ├─ provider-main.tf                 # GCP provider setup
+   ├─ provider-variables.tf            # Provider variables
+   ├─ terraform.tfvars                 # Your variable values
+   ├─ ubnt-versions.tf                 # Ubuntu version data
+   ├─ ubnt-vm-main.tf                  # VM resource definitions
+   ├─ ubnt-vm-output.tf                # Outputs post-provision
+   └─ ubnt-vm-variables.tf             # VM variables
 ```
-### Google Free Tier Information
-I have highlighted the key information in bold below.
 
-**Compute Engine**
-- 1 non-preemptible **e2-micro VM** instance per month in one of the following US regions:
+## Google Free Tier information
+
+Key points highlighted in bold.
+
+- **Compute Engine**
+  - 1 non-preemptible **e2-micro VM** per month in one of:
     - Oregon: **us-west1**
     - Iowa: us-central1
     - South Carolina: us-east1
-- 30 GB-months standard persistent disk**
-- 5 GB-month snapshot storage** in the following regions:
+  - 30 GB-months standard persistent disk
+  - 5 GB-month snapshot storage in:
     - Oregon: **us-west1**
     - Iowa: us-central1
     - South Carolina: us-east1
     - Taiwan: asia-east1
     - Belgium: europe-west1
-- **1 GB network egress from North America to all region destinations** (excluding China and Australia) per month
-- **Your Free Tier e2-micro instance limit is by time**, not by instance. Each month, eligible use of all of your e2-micro instance is free until you have used a number of hours equal to the total hours in the current month. Usage calculations are combined across the supported regions.
+  - **1 GB egress from North America to all regions** per month excluding China and Australia
+  - **Usage is time-based for e2-micro** across supported regions
+  - **External IP address is not charged** under the free tier
+  - GPUs and TPUs are excluded from the free tier
 
-- **Compute Engine free tier does not charge for an external IP address.**
+### Network service tier screenshot
 
-- GPUs and TPUs are not included in the Free Tier offer. You are always charged for GPUs and TPUs that you add to VM instances.
+By default Google sets the VM networking to Premium. Change it to **Standard** as shown here:
 
+![Change network service tier to Standard](https://user-images.githubusercontent.com/53116754/171113057-e9b5409d-1719-422e-a28c-36da70bfee2d.png)
 
-### Infrastructure model
+## Troubleshooting
+
+- **APIs or permissions**  
+  Errors during plan or apply often indicate a missing enabled API or insufficient IAM roles on the service account.
+- **Startup work still in progress**  
+  Give the VM a few minutes after first boot for Docker install and file injection. Check serial console logs if needed.
+- **Network service tier charges**  
+  Switch the VM’s network service tier from Premium to **Standard** to stick to free-tier limits.
+
+## Infrastructure model
 
 ![Infrastructure model](.infragenie/infrastructure_model.png)
+
+## Licence
+
+This project is licensed under the MIT Licence. See the [LICENCE](LICENCE) file for details.
+
+## Security
+
+If you discover a security issue, please review and follow the guidance in [SECURITY.md](SECURITY.md), or open a private security-focused issue with minimal details and request a secure contact channel.
+
+## Contributing
+
+Feel free to open issues or submit pull requests if you have suggestions or improvements.  
+See [CONTRIBUTING.md](CONTRIBUTING.md)
+
+## Support
+
+Open an [issue](/../../issues) with as much detail as possible, including your project id, region and any Terraform output or error logs that help reproduce the problem.
