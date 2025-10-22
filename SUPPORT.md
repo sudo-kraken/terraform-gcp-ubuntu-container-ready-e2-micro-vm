@@ -3,8 +3,9 @@
 This document explains where and how to get help with most of my projects.
 Please ensure you read through it thoroughly.
 
-> 👉 **Note**: before participating in the community, please read our
-> [Code of Conduct](.github/CODE_OF_CONDUCT).
+> [!NOTE]
+> 👉 Before participating in the community, please read our
+> [Code of Conduct](CODE_OF_CONDUCT.md).
 > By interacting with this repository, organization, or community you agree to
 > abide by its terms.
 
